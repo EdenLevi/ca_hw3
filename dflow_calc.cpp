@@ -2,8 +2,26 @@
 /* Implementation (skeleton)  for the dataflow statistics calculator */
 
 #include "dflow_calc.h"
+#include "vector"
+
+class Node {
+public:
+    InstInfo data;
+    std::vector<Node*> childrenNodes; // nodes that depend on this node
+    Node* dLeft;
+    Node* dRight;
+};
+
+class ProgramContext {
+public:
+    std::vector<Node*> nodes;
+    std::vector<Node*> exitNodes; // nodes no one depend on
+};
 
 ProgCtx analyzeProg(const unsigned int opsLatency[], const InstInfo progTrace[], unsigned int numOfInsts) {
+
+
+
     return PROG_CTX_NULL;
 }
 
