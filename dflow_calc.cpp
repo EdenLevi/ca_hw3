@@ -24,6 +24,8 @@ public:
     unsigned int numOfInsts;
     std::vector<Node*> nodes;
     std::vector<Node*> exitNodes; // nodes no one depend on
+    Node *LastNodeWroteToRegister[MAX_OPS];
+
 
     ProgramContext(unsigned int numOfInsts) : numOfInsts(numOfInsts) {}
 };
@@ -33,7 +35,8 @@ ProgCtx analyzeProg(const unsigned int opsLatency[], const InstInfo progTrace[],
     ProgramContext* prog = new ProgramContext(numOfInsts);
 
     for(int i = 0; i < numOfInsts; i++) {
-       prog->nodes.push_back()  progTrace[i];
+       /// read a command from input and
+        prog->nodes.push_back()  progTrace[i];
     }
 
     return PROG_CTX_NULL;
