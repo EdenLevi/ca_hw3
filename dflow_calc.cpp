@@ -7,9 +7,9 @@
 class Node {
 public:
     InstInfo data;
-    std::vector<Node*> childrenNodes; // nodes that depend on this node
-    Node* dLeft;
-    Node* dRight;
+    std::vector<Node *> childrenNodes; // nodes that depend on this node
+    Node *dLeft; // first dependency
+    Node *dRight; // second dependency
 
     Node(InstInfo dataIn) : dLeft(nullptr), dRight(nullptr) {
         this->data.dstIdx = dataIn.dstIdx;
@@ -22,21 +22,29 @@ public:
 class ProgramContext {
 public:
     unsigned int numOfInsts;
-    std::vector<Node*> nodes;
-    std::vector<Node*> exitNodes; // nodes no one depend on
-    Node *LastNodeWroteToRegister[MAX_OPS];
+    std::vector<Node *> nodes;
+    Node *lastNodeWroteToRegister[MAX_OPS];
 
 
-    ProgramContext(unsigned int numOfInsts) : numOfInsts(numOfInsts) {}
+    ProgramContext(unsigned int numOfInsts) : numOfInsts(numOfInsts) {
+        for(int i = 0; i < MAX_OPS; i++) {
+            lastNodeWroteToRegister[i] = nullptr;
+        }
+    }
 };
 
 ProgCtx analyzeProg(const unsigned int opsLatency[], const InstInfo progTrace[], unsigned int numOfInsts) {
 
-    ProgramContext* prog = new ProgramContext(numOfInsts);
+    ProgramContext *prog = new ProgramContext(numOfInsts);
 
-    for(int i = 0; i < numOfInsts; i++) {
-       /// read a command from input and
-        prog->nodes.push_back()  progTrace[i];
+    for (int i = 0; i < numOfInsts; i++) {
+        /// read a command from input and
+        Node *node = new Node(progTrace[i]);
+        prog->nodes.push_back(node);
+
+        node->dLeft = prog->lastNodeWroteToRegister[node->data.src1Idx];
+        node->dRight = prog->lastNodeWroteToRegister[node->data.src2Idx];
+        if(node->dLeft == node->dRight) node->dRight = nullptr;
     }
 
     return PROG_CTX_NULL;
