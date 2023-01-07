@@ -98,7 +98,6 @@ int getInstDeps(ProgCtx ctx, unsigned int theInst, int *src1DepInst, int *src2De
     if(theInst >= prog->nodes.size()) return -1; // check if there is command number <theInst>
     *src1DepInst = (prog->nodes[theInst]->dLeft ? prog->nodes[theInst]->dLeft->id : -1);
     *src2DepInst = (prog->nodes[theInst]->dRight ? prog->nodes[theInst]->dRight->id : -1);
-
     return 0;
 }
 
