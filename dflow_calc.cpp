@@ -9,7 +9,6 @@ using namespace std;
 class Node {
 public:
     InstInfo data;
-    std::vector<Node *> childrenNodes; // nodes that depend on this node
     Node *dLeft; // first dependency
     Node *dRight; // second dependency
     unsigned int cyclesIncludingCommand;
@@ -32,6 +31,14 @@ public:
     ProgramContext() {
         for (int i = 0; i < MAX_OPS; i++) {
             lastNodeWroteToRegister[i] = nullptr;
+        }
+    }
+
+    ~ProgramContext() {
+        for (int i = 0; i < MAX_OPS; i++) {
+            if(lastNodeWroteToRegister[i]) {
+                delete(lastNodeWroteToRegister[i]);
+            }
         }
     }
 };
@@ -74,6 +81,8 @@ ProgCtx analyzeProg(const unsigned int opsLatency[], const InstInfo progTrace[],
 }
 
 void freeProgCtx(ProgCtx ctx) {
+    ProgramContext* prog = ((ProgramContext*)ctx);
+    delete prog;
 }
 
 int getInstDepth(ProgCtx ctx, unsigned int theInst) {
