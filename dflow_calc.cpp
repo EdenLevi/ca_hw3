@@ -50,16 +50,14 @@ ProgCtx analyzeProg(const unsigned int opsLatency[], const InstInfo progTrace[],
         /// updating node's dependencies
         node->dLeft = prog->lastNodeWroteToRegister[node->data.src1Idx];
         node->dRight = prog->lastNodeWroteToRegister[node->data.src2Idx];
-        if (node->dLeft == node->dRight) node->dRight = nullptr;
+        //if (node->dLeft == node->dRight) node->dRight = nullptr; // no need if both are 4 should output (4, 4)
 
         /// updating register destination to last used (current node)
         prog->lastNodeWroteToRegister[node->data.dstIdx] = node;
 
         /// updating cycles time
         if(node->dLeft && node->dRight) {
-            node->cyclesIncludingCommand =
-                    max(node->dLeft->cyclesIncludingCommand, node->dRight->cyclesIncludingCommand)
-                                                                   + opsLatency[node->data.opcode];
+            node->cyclesIncludingCommand = max(node->dLeft->cyclesIncludingCommand, node->dRight->cyclesIncludingCommand) + opsLatency[node->data.opcode];
         }
         else if(node->dLeft) {
             node->cyclesIncludingCommand = node->dLeft->cyclesIncludingCommand + opsLatency[node->data.opcode];
@@ -101,7 +99,7 @@ int getProgDepth(ProgCtx ctx) {
     ProgramContext* prog = ((ProgramContext*)ctx);
     int progMaxDepth = 0;
     for(Node* n : prog->nodes) {
-        progMaxDepth = max(progMaxDepth, n->cyclesIncludingCommand);
+        progMaxDepth = max(progMaxDepth, (int)n->cyclesIncludingCommand);
     }
 
     return progMaxDepth;
