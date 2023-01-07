@@ -99,7 +99,7 @@ int getProgDepth(ProgCtx ctx) {
     ProgramContext* prog = ((ProgramContext*)ctx);
     int progMaxDepth = 0;
     for(Node* n : prog->nodes) {
-        progMaxDepth = max(progMaxDepth, (int)n->cyclesIncludingCommand);
+        progMaxDepth = max(progMaxDepth, (int)(n->cyclesIncludingCommand));
     }
 
     return progMaxDepth;
