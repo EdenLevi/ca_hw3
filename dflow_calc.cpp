@@ -47,7 +47,7 @@ ProgCtx analyzeProg(const unsigned int opsLatency[], const InstInfo progTrace[],
 
     ProgramContext *prog = new ProgramContext();
 
-    for (int i = 0; i < numOfInsts; i++) {
+    for (int i = 0; i < (int)numOfInsts; i++) {
         /// read a command from input and check its dependencies
         Node *node = new Node(progTrace[i], i);
         prog->nodes.push_back(node);
