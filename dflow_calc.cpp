@@ -25,19 +25,20 @@ public:
 
 class ProgramContext {
 public:
+    int numOfInsts;
     std::vector<Node *> nodes;
     Node *lastNodeWroteToRegister[MAX_OPS];
 
-    ProgramContext() {
+    ProgramContext(int numOfInsts) : numOfInsts(numOfInsts) {
         for (int i = 0; i < MAX_OPS; i++) {
             lastNodeWroteToRegister[i] = nullptr;
         }
     }
 
     ~ProgramContext() {
-        for (int i = 0; i < MAX_OPS; i++) {
-            if(lastNodeWroteToRegister[i]) {
-                delete(lastNodeWroteToRegister[i]);
+        for (int i = 0; i < this->numOfInsts; i++) {
+            if (nodes[i]) {
+                delete (this->nodes[i]);
             }
         }
     }
@@ -45,9 +46,9 @@ public:
 
 ProgCtx analyzeProg(const unsigned int opsLatency[], const InstInfo progTrace[], unsigned int numOfInsts) {
 
-    ProgramContext *prog = new ProgramContext();
+    ProgramContext *prog = new ProgramContext(numOfInsts);
 
-    for (int i = 0; i < (int)numOfInsts; i++) {
+    for (int i = 0; i < (int) numOfInsts; i++) {
         /// read a command from input and check its dependencies
         Node *node = new Node(progTrace[i], i);
         prog->nodes.push_back(node);
@@ -60,16 +61,15 @@ ProgCtx analyzeProg(const unsigned int opsLatency[], const InstInfo progTrace[],
         prog->lastNodeWroteToRegister[node->data.dstIdx] = node;
 
         /// updating cycles time
-        if(node->dLeft && node->dRight) {
-            node->cyclesIncludingCommand = max(node->dLeft->cyclesIncludingCommand, node->dRight->cyclesIncludingCommand) + opsLatency[node->data.opcode];
-        }
-        else if(node->dLeft) {
+        if (node->dLeft && node->dRight) {
+            node->cyclesIncludingCommand =
+                    max(node->dLeft->cyclesIncludingCommand, node->dRight->cyclesIncludingCommand) +
+                    opsLatency[node->data.opcode];
+        } else if (node->dLeft) {
             node->cyclesIncludingCommand = node->dLeft->cyclesIncludingCommand + opsLatency[node->data.opcode];
-        }
-        else if(node->dRight) {
+        } else if (node->dRight) {
             node->cyclesIncludingCommand = node->dRight->cyclesIncludingCommand + opsLatency[node->data.opcode];
-        }
-        else {
+        } else {
             node->cyclesIncludingCommand = opsLatency[node->data.opcode];
         }
 
@@ -81,21 +81,21 @@ ProgCtx analyzeProg(const unsigned int opsLatency[], const InstInfo progTrace[],
 }
 
 void freeProgCtx(ProgCtx ctx) {
-    ProgramContext* prog = ((ProgramContext*)ctx);
+    ProgramContext *prog = ((ProgramContext *) ctx);
     delete prog;
 }
 
 int getInstDepth(ProgCtx ctx, unsigned int theInst) {
-    ProgramContext* prog = ((ProgramContext*)ctx);
-    if(prog->nodes.size() >= theInst) {
-        return (int)(prog->nodes[theInst]->cyclesIncludingCommand - prog->nodes[theInst]->myCycles);
+    ProgramContext *prog = ((ProgramContext *) ctx);
+    if (prog->nodes.size() >= theInst) {
+        return (int) (prog->nodes[theInst]->cyclesIncludingCommand - prog->nodes[theInst]->myCycles);
     }
     return -1;
 }
 
 int getInstDeps(ProgCtx ctx, unsigned int theInst, int *src1DepInst, int *src2DepInst) {
-    ProgramContext* prog = ((ProgramContext*)ctx);
-    if(theInst >= prog->nodes.size()) return -1; // check if there is command number <theInst>
+    ProgramContext *prog = ((ProgramContext *) ctx);
+    if (theInst >= prog->nodes.size()) return -1; // check if there is command number <theInst>
     *src1DepInst = (prog->nodes[theInst]->dLeft ? prog->nodes[theInst]->dLeft->id : -1);
     *src2DepInst = (prog->nodes[theInst]->dRight ? prog->nodes[theInst]->dRight->id : -1);
     return 0;
@@ -103,10 +103,10 @@ int getInstDeps(ProgCtx ctx, unsigned int theInst, int *src1DepInst, int *src2De
 
 int getProgDepth(ProgCtx ctx) {
 
-    ProgramContext* prog = ((ProgramContext*)ctx);
+    ProgramContext *prog = ((ProgramContext *) ctx);
     int progMaxDepth = 0;
-    for(Node* n : prog->nodes) {
-        progMaxDepth = max(progMaxDepth, (int)(n->cyclesIncludingCommand));
+    for (Node *n: prog->nodes) {
+        progMaxDepth = max(progMaxDepth, (int) (n->cyclesIncludingCommand));
     }
 
     return progMaxDepth;
