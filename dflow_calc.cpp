@@ -68,6 +68,9 @@ ProgCtx analyzeProg(const unsigned int opsLatency[], const InstInfo progTrace[],
         else {
             node->cyclesIncludingCommand = opsLatency[node->data.opcode];
         }
+
+        /// updating myCycles
+        node->myCycles = opsLatency[node->data.opcode];
     }
 
     return (ProgCtx) prog;
