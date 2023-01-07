@@ -26,12 +26,10 @@ public:
 
 class ProgramContext {
 public:
-    unsigned int numOfInsts;
     std::vector<Node *> nodes;
     Node *lastNodeWroteToRegister[MAX_OPS];
 
-
-    ProgramContext(unsigned int numOfInsts) : numOfInsts(numOfInsts) {
+    ProgramContext() {
         for (int i = 0; i < MAX_OPS; i++) {
             lastNodeWroteToRegister[i] = nullptr;
         }
@@ -40,7 +38,7 @@ public:
 
 ProgCtx analyzeProg(const unsigned int opsLatency[], const InstInfo progTrace[], unsigned int numOfInsts) {
 
-    ProgramContext *prog = new ProgramContext(numOfInsts);
+    ProgramContext *prog = new ProgramContext();
 
     for (int i = 0; i < numOfInsts; i++) {
         /// read a command from input and check its dependencies
@@ -50,7 +48,6 @@ ProgCtx analyzeProg(const unsigned int opsLatency[], const InstInfo progTrace[],
         /// updating node's dependencies
         node->dLeft = prog->lastNodeWroteToRegister[node->data.src1Idx];
         node->dRight = prog->lastNodeWroteToRegister[node->data.src2Idx];
-        //if (node->dLeft == node->dRight) node->dRight = nullptr; // no need if both are 4 should output (4, 4)
 
         /// updating register destination to last used (current node)
         prog->lastNodeWroteToRegister[node->data.dstIdx] = node;
@@ -68,10 +65,12 @@ ProgCtx analyzeProg(const unsigned int opsLatency[], const InstInfo progTrace[],
         else {
             node->cyclesIncludingCommand = opsLatency[node->data.opcode];
         }
+
+        /// updating myCycles
+        node->myCycles = opsLatency[node->data.opcode];
     }
 
     return (ProgCtx) prog;
-    //return PROG_CTX_NULL;
 }
 
 void freeProgCtx(ProgCtx ctx) {
